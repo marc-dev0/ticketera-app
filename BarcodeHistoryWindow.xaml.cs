@@ -12,6 +12,9 @@ namespace TicketeraApp
     {
         private readonly BarcodeRegistryService _svc;
 
+        // Registro seleccionado para cargar en el formulario principal y reimprimir
+        public BarcodeRecord? SelectedForReprint { get; private set; }
+
         public BarcodeHistoryWindow(BarcodeRegistryService svc)
         {
             InitializeComponent();
@@ -27,6 +30,31 @@ namespace TicketeraApp
             string last = records.OrderByDescending(r => r.RegisteredAt).FirstOrDefault()?.Code ?? "—";
             SubtitleBlock.Text = $"{count} código(s) registrado(s). Último: {last}";
             StatusBlock.Text = "";
+        }
+
+        // ── Seleccionar para reimprimir ───────────────────────────────────────
+        private void SelectCurrentRow()
+        {
+            if (HistoryGrid.SelectedItem is BarcodeRecord record)
+            {
+                SelectedForReprint = record;
+                Close();
+            }
+            else
+            {
+                StatusBlock.Text = "Selecciona primero una fila de la lista.";
+                StatusBlock.Foreground = System.Windows.Media.Brushes.DarkOrange;
+            }
+        }
+
+        private void HistoryGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            SelectCurrentRow();
+        }
+
+        private void SelectForReprintButton_Click(object sender, RoutedEventArgs e)
+        {
+            SelectCurrentRow();
         }
 
         // ── Delete single row ────────────────────────────────────────────────

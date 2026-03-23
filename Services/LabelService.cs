@@ -13,7 +13,8 @@ namespace TicketeraApp.Services
             FieldSettings priceSettings,
             int spacingX,
             int globalOffsetX = 0,
-            int firstColumnXOffset = 0)
+            int firstColumnXOffset = 0,
+            int quantity = 1)
         {
             var sb = new StringBuilder();
 
@@ -62,7 +63,7 @@ namespace TicketeraApp.Services
                 }
             }
 
-            sb.AppendLine("PRINT 1,1");
+            sb.AppendLine($"PRINT {quantity},1");
             return sb.ToString();
         }
     }

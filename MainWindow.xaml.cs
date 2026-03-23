@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Printing;
 using System.Windows;
 using TicketeraApp.Models;
 using TicketeraApp.Services;
 using TicketeraApp.Infrastructure;
+using AutoUpdaterDotNET;
 
 namespace TicketeraApp
 {
@@ -17,6 +18,7 @@ namespace TicketeraApp
         private FieldSettings _nameSettings;
         private FieldSettings _barcodeSettings;
         private FieldSettings _priceSettings;
+        private bool _isReprinting = false;  // evita pedir guardar si el código ya existe
 
         public MainWindow()
         {
@@ -27,6 +29,11 @@ namespace TicketeraApp
 
             LoadSettings();
             LoadPrinters();
+
+            // Configurar y buscar actualizaciones en segundo plano usando GitHub Pages
+            AutoUpdater.ShowSkipButton = false;
+            AutoUpdater.ShowRemindLaterButton = true;
+            AutoUpdater.Start("https://marc-dev0.github.io/ticketera-app/update.xml");
             RefreshCodeEntryState();
         }
 
@@ -213,7 +220,8 @@ namespace TicketeraApp
                 // Desbloquear para el primer registro manual
                 SkuTextBox.IsReadOnly = false;
                 SkuTextBox.Background = System.Windows.Media.Brushes.White;
-                if (SkuTextBox.Text.Length > 12) SkuTextBox.Text = string.Empty;
+                if (string.IsNullOrEmpty(SkuTextBox.Text) || SkuTextBox.Text.Length > 12) 
+                    SkuTextBox.Text = "200000005000";
             }
         }
 
@@ -221,7 +229,57 @@ namespace TicketeraApp
         {
             var win = new BarcodeHistoryWindow(_registryService) { Owner = this };
             win.ShowDialog();
+
+            if (win.SelectedForReprint != null)
+            {
+                var record = win.SelectedForReprint;
+
+                // Cargar el código sin desbloquear el campo (solo escritura programática)
+                SkuTextBox.Text = record.Code.Length == 13 ? record.Code.Substring(0, 12) : record.Code;
+
+                if (!string.IsNullOrEmpty(record.ProductName))
+                {
+                    EnableProductNameCheckBox.IsChecked = true;
+                    ProductNameTextBox.IsEnabled = true;
+                    ProductNameTextBox.Text = record.ProductName;
+                }
+
+                if (!string.IsNullOrEmpty(record.Price))
+                {
+                    EnablePriceCheckBox.IsChecked = true;
+                    PriceTextBox.IsEnabled = true;
+                    PriceTextBox.Text = record.Price;
+                }
+
+                _isReprinting = true;
+                NewCodeButton.Visibility = Visibility.Visible;
+                StatusTextBlock.Text = $"Código {record.Code} cargado. Ajusta la cantidad y presiona Imprimir.";
+                StatusTextBlock.Foreground = System.Windows.Media.Brushes.SteelBlue;
+                // Diferir el foco hasta que la ventana del historial haya cerrado por completo
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    PrintQuantityTextBox.Focus();
+                    PrintQuantityTextBox.SelectAll();
+                }), System.Windows.Threading.DispatcherPriority.Input);
+            }
+            else
+            {
+                NewCodeButton.Visibility = Visibility.Collapsed;
+                RefreshCodeEntryState();
+            }
+        }
+
+        private void NewCodeButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Salir del modo reimpresión y volver al flujo normal
+            _isReprinting = false;
+            NewCodeButton.Visibility = Visibility.Collapsed;
+            ProductNameTextBox.Text = string.Empty;
+            PriceTextBox.Text = string.Empty;
+            PrintQuantityTextBox.Text = "1";
+            StatusTextBlock.Text = string.Empty;
             RefreshCodeEntryState();
+            ProductNameTextBox.Focus();
         }
 
         // ── Print ────────────────────────────────────────────────────────────
@@ -258,6 +316,13 @@ namespace TicketeraApp
             if (!int.TryParse(GlobalOffsetXTextBox.Text, out int globalOffsetX)) globalOffsetX = 0;
             if (!int.TryParse(FirstColumnOffsetTextBox.Text, out int firstColOffset)) firstColOffset = 20;
 
+            int quantity = 1;
+            if (!int.TryParse(PrintQuantityTextBox.Text, out quantity) || quantity < 1)
+            {
+                quantity = 1;
+                PrintQuantityTextBox.Text = "1";
+            }
+
             SaveSettings();
 
             try
@@ -266,7 +331,7 @@ namespace TicketeraApp
                 string command = _labelService.Generate3ColumnEan13Command(
                     productName, sku, price,
                     _nameSettings, _barcodeSettings, _priceSettings,
-                    spacingX, globalOffsetX, firstColOffset);
+                    spacingX, globalOffsetX, firstColOffset, quantity);
 
                 StatusTextBlock.Text = "Enviando a la impresora...";
                 bool ok = WindowsPrinterHelper.SendStringToPrinter(printerName, command);
@@ -276,46 +341,58 @@ namespace TicketeraApp
                     StatusTextBlock.Text = $"¡Etiquetas enviadas a {printerName}!";
                     StatusTextBlock.Foreground = System.Windows.Media.Brushes.SeaGreen;
 
-                    // Asegurar código de 13 dígitos para registro
-                    string codeToSave = sku;
-                    if (sku.Length == 12)
-                        codeToSave = sku + CalculateEan13CheckDigit(sku);
-
-                    // Confirmar almacenamiento en el historial
-                    var save = MessageBox.Show(
-                        $"¿Guardar el código {codeToSave} en el historial?\n\nProducto: {(string.IsNullOrEmpty(productName) ? "—" : productName)}\nPrecio: {(string.IsNullOrEmpty(price) ? "—" : price)}",
-                        "Guardar en historial",
-                        MessageBoxButton.YesNo,
-                        MessageBoxImage.Question);
-
-                    if (save == MessageBoxResult.Yes)
+                    if (_isReprinting)
                     {
-                        var existing = _registryService.Load();
-                        if (existing.Any(r => r.Code == codeToSave))
+                        // Reimpresión completada: mantener el código cargado para reimprimir de nuevo si se desea.
+                        // El usuario puede presionar Imprimir otra vez, o abrir el Historial y cerrar para volver al modo normal.
+                        StatusTextBlock.Text = "✔ Reimpresión enviada. Imprime de nuevo o abre el Historial para crear un código nuevo.";
+                        StatusTextBlock.Foreground = System.Windows.Media.Brushes.SeaGreen;
+                        PrintQuantityTextBox.Focus();
+                        PrintQuantityTextBox.SelectAll();
+                    }
+                    else
+                    {
+                        // Asegurar código de 13 dígitos para registro
+                        string codeToSave = sku;
+                        if (sku.Length == 12)
+                            codeToSave = sku + CalculateEan13CheckDigit(sku);
+
+                        // Confirmar almacenamiento en el historial
+                        var save = MessageBox.Show(
+                            $"¿Guardar el código {codeToSave} en el historial?\n\nProducto: {(string.IsNullOrEmpty(productName) ? "—" : productName)}\nPrecio: {(string.IsNullOrEmpty(price) ? "—" : price)}",
+                            "Guardar en historial",
+                            MessageBoxButton.YesNo,
+                            MessageBoxImage.Question);
+
+                        if (save == MessageBoxResult.Yes)
                         {
-                            MessageBox.Show($"El código {codeToSave} ya está registrado en el historial.",
-                                "Duplicado", MessageBoxButton.OK, MessageBoxImage.Warning);
-                        }
-                        else
-                        {
-                            // Registrar y generar autoincremento para la próxima etiqueta
-                            _registryService.Add(new BarcodeRecord
+                            var existing = _registryService.Load();
+                            if (existing.Any(r => r.Code == codeToSave))
                             {
-                                Code         = codeToSave,
-                                ProductName  = productName,
-                                Price        = price,
-                                RegisteredAt = DateTime.Now
-                            });
+                                MessageBox.Show($"El código {codeToSave} ya está registrado en el historial.",
+                                    "Duplicado", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            }
+                            else
+                            {
+                                // Registrar y generar autoincremento para la próxima etiqueta
+                                _registryService.Add(new BarcodeRecord
+                                {
+                                    Code         = codeToSave,
+                                    ProductName  = productName,
+                                    Price        = price,
+                                    RegisteredAt = DateTime.Now
+                                });
 
-                            // Restablecer campos de entrada opcionales
-                            if (EnableProductNameCheckBox.IsChecked ?? false)
-                                ProductNameTextBox.Text = string.Empty;
-                            if (EnablePriceCheckBox.IsChecked ?? false)
-                                PriceTextBox.Text = string.Empty;
+                                // Restablecer campos de entrada opcionales
+                                if (EnableProductNameCheckBox.IsChecked ?? false)
+                                    ProductNameTextBox.Text = string.Empty;
+                                if (EnablePriceCheckBox.IsChecked ?? false)
+                                    PriceTextBox.Text = string.Empty;
 
-                            ProductNameTextBox.Focus();
-                            RefreshCodeEntryState();
-                            StatusTextBlock.Text = $"✔ Guardado. Código siguiente: {SkuTextBox.Text}";
+                                ProductNameTextBox.Focus();
+                                RefreshCodeEntryState();
+                                StatusTextBlock.Text = $"✔ Guardado. Código siguiente: {SkuTextBox.Text}";
+                            }
                         }
                     }
                 }

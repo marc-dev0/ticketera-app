@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<item>
+    <!-- 
+      Este archivo debe estar hospedado en GitHub Pages en:
+      https://marc-dev0.github.io/ticketera-app/update.xml
+      
+      Cada vez que saques una nueva versión, actualiza el <version> y el link <url> 
+      al nuevo instalador que hayas subido a tu repo (gh-pages) o Releases.
+    -->
+    <version>1.2.0.0</version>
+    <url>https://marc-dev0.github.io/ticketera-app/ProfitCode_Setup_v1.2.exe</url>
+    <changelog>https://github.com/marc-dev0/ticketera-app/releases</changelog>
+    <mandatory>false</mandatory>
+</item>

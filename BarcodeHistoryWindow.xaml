@@ -10,20 +10,25 @@
     <Grid Margin="16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <StackPanel Grid.Row="0" Margin="0,0,0,12">
+        <StackPanel Grid.Row="0" Margin="0,0,0,8">
             <TextBlock Text="📋 Historial de Códigos EAN-13 Generados"
                        FontSize="16" FontWeight="Bold" Foreground="#1A5276"/>
             <TextBlock x:Name="SubtitleBlock"
                        FontSize="11" Foreground="Gray" Margin="0,3,0,0"/>
         </StackPanel>
 
+        <!-- Hint para reimprimir -->
+        <TextBlock Grid.Row="1" Margin="0,0,0,8" FontSize="11" Foreground="#1A5276"
+                   Text="💡 Doble clic en una fila (o selecciónala y usa el botón Reimprimir) para cargarla en el formulario principal."/>
+
         <!-- DataGrid -->
-        <DataGrid Grid.Row="1"
+        <DataGrid Grid.Row="2"
                   x:Name="HistoryGrid"
                   AutoGenerateColumns="False"
                   IsReadOnly="True"
@@ -32,7 +37,8 @@
                   HeadersVisibility="Column"
                   CanUserResizeRows="False"
                   SelectionMode="Single"
-                  BorderBrush="#CCCCCC" BorderThickness="1">
+                  BorderBrush="#CCCCCC" BorderThickness="1"
+                  MouseDoubleClick="HistoryGrid_MouseDoubleClick">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Código EAN-13"   Binding="{Binding Code}"        Width="155"/>
                 <DataGridTextColumn Header="Nombre Producto" Binding="{Binding ProductName}" Width="*"/>
@@ -57,10 +63,11 @@
             </DataGrid.Columns>
         </DataGrid>
 
-        <!-- Buttons -->
-        <Grid Grid.Row="2" Margin="0,12,0,0">
+        <!-- Bottom bar -->
+        <Grid Grid.Row="3" Margin="0,12,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
@@ -69,17 +76,23 @@
             <TextBlock Grid.Column="0" x:Name="StatusBlock"
                        VerticalAlignment="Center" Foreground="#555" FontSize="11"/>
 
-            <Button Grid.Column="1" Content="🗑 Limpiar Todo"
+            <Button Grid.Column="1" Content="✔ Reimprimir seleccionado"
+                    Width="180" Height="34" Margin="0,0,10,0"
+                    Background="#007ACC" Foreground="White" FontWeight="Bold"
+                    ToolTip="Selecciona una fila primero, luego haz clic aquí"
+                    Click="SelectForReprintButton_Click"/>
+
+            <Button Grid.Column="2" Content="🗑 Limpiar Todo"
                     Width="130" Height="34" Margin="0,0,10,0"
                     Background="#E74C3C" Foreground="White" FontWeight="Bold"
                     Click="ClearButton_Click"/>
 
-            <Button Grid.Column="2" Content="📥 Exportar Excel"
+            <Button Grid.Column="3" Content="📥 Exportar Excel"
                     Width="140" Height="34" Margin="0,0,10,0"
                     Background="#1A5276" Foreground="White" FontWeight="Bold"
                     Click="ExportButton_Click"/>
 
-            <Button Grid.Column="3" Content="✕ Cerrar"
+            <Button Grid.Column="4" Content="✕ Cerrar"
                     Width="80" Height="34"
                     IsCancel="True"
                     Click="CloseButton_Click"/>
