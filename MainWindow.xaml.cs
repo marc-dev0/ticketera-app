@@ -35,6 +35,13 @@ namespace TicketeraApp
             AutoUpdater.ShowRemindLaterButton = true;
             AutoUpdater.Start("https://marc-dev0.github.io/ticketera-app/update.xml");
             RefreshCodeEntryState();
+
+            // Set version text
+            var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+            if (version != null)
+            {
+                VersionTextBlock.Text = $"v{version.Major}.{version.Minor}.{version.Build}";
+            }
         }
 
         private void LoadSettings()

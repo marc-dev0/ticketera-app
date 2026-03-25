@@ -221,8 +221,9 @@
                 Click="NewCodeButton_Click"/>
 
         <!-- FOOTER / COPYRIGHT -->
-        <TextBlock Grid.Row="12" Text="Desarrollado por Miguel Rojas © 2026"
-                   Margin="0,10,0,0" FontSize="11" Foreground="Gray"
-                   HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+        <StackPanel Grid.Row="12" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,10,0,0">
+            <TextBlock x:Name="VersionTextBlock" Text="v0.0.0" Margin="0,0,10,0" FontSize="11" Foreground="Gray"/>
+            <TextBlock Text="Desarrollado por Miguel Rojas © 2026" FontSize="11" Foreground="Gray"/>
+        </StackPanel>
     </Grid>
 </Window>
