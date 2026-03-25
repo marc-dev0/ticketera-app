@@ -1,11 +1,12 @@
 <Window x:Class="TicketeraApp.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Impresión de Etiquetas – CBX T30 (3 columnas)" Height="680" Width="460"
+        Title="Impresión de Etiquetas – CBX T30 (3 columnas)" Height="820" Width="460"
         Icon="icon.png"
         WindowStartupLocation="CenterScreen">
     <Grid Margin="20">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -123,24 +124,96 @@
             <TextBox Grid.Column="1" x:Name="PrintQuantityTextBox" Padding="5" Text="1" Width="60" HorizontalAlignment="Left" MaxLength="3"/>
         </Grid>
 
+        <!-- COMBINAR ULTIMA FILA -->
+        <StackPanel Grid.Row="7" Margin="0,5,0,5">
+            <CheckBox x:Name="CombinedRowCheckBox" Content="Imprimir códigos diferentes en la última fila"
+                      FontWeight="SemiBold" Foreground="#1A5276"
+                      Checked="CombinedRowCheckBox_Changed" Unchecked="CombinedRowCheckBox_Changed"/>
+            <Grid x:Name="CombinedRowPanel" Visibility="Collapsed" Margin="0,10,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Columna 2 -->
+                <StackPanel Grid.Column="0" Background="#F8F9F9" Margin="0,0,0,0">
+                    <TextBlock Text="Columna 2 (Medio)" FontWeight="Bold" Margin="5,5,0,5" Foreground="#333"/>
+                    <Grid Margin="5,0,5,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Cód:" FontSize="10" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                        <TextBox Grid.Column="1" x:Name="Col2SkuTextBox" Padding="2" MaxLength="13" Margin="0,0,0,5" TextChanged="Col2SkuTextBox_TextChanged"/>
+                    </Grid>
+                    <Grid Margin="5,0,5,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Nom:" FontSize="10" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                        <TextBox Grid.Column="1" x:Name="Col2NameTextBox" Padding="2" MaxLength="20" Margin="0,0,0,5"/>
+                    </Grid>
+                    <Grid Margin="5,0,5,5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Pre:" FontSize="10" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                        <TextBox Grid.Column="1" x:Name="Col2PriceTextBox" Padding="2" MaxLength="9"/>
+                    </Grid>
+                </StackPanel>
+
+                <!-- Columna 3 -->
+                <StackPanel Grid.Column="2" Background="#F8F9F9" Margin="0,0,0,0">
+                    <TextBlock Text="Columna 3 (Der)" FontWeight="Bold" Margin="5,5,0,5" Foreground="#333"/>
+                    <Grid Margin="5,0,5,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Cód:" FontSize="10" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                        <TextBox Grid.Column="1" x:Name="Col3SkuTextBox" Padding="2" MaxLength="13" Margin="0,0,0,5" TextChanged="Col3SkuTextBox_TextChanged"/>
+                    </Grid>
+                    <Grid Margin="5,0,5,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Nom:" FontSize="10" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                        <TextBox Grid.Column="1" x:Name="Col3NameTextBox" Padding="2" MaxLength="20" Margin="0,0,0,5"/>
+                    </Grid>
+                    <Grid Margin="5,0,5,5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Pre:" FontSize="10" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                        <TextBox Grid.Column="1" x:Name="Col3PriceTextBox" Padding="2" MaxLength="9"/>
+                    </Grid>
+                </StackPanel>
+            </Grid>
+        </StackPanel>
+
         <!-- IMPRIMIR -->
-        <Button Grid.Row="7" x:Name="PrintButton" Margin="0,20,0,5"
+        <Button Grid.Row="8" x:Name="PrintButton" Margin="0,20,0,5"
                 Content="🖨 Imprimir Fila de 3 Etiquetas"
                 IsDefault="True"
                 Height="45" Background="#007ACC" Foreground="White" FontWeight="Bold" FontSize="14"
                 Click="PrintButton_Click"/>
 
         <!-- HISTORIAL -->
-        <Button Grid.Row="8" Content="📋 Ver Historial de Códigos"
+        <Button Grid.Row="9" Content="📋 Ver Historial de Códigos"
                 Height="34" Margin="0,0,0,0"
                 Background="#1A5276" Foreground="White" FontWeight="SemiBold"
                 Click="HistoryButton_Click"/>
 
-        <TextBlock Grid.Row="9" x:Name="StatusTextBlock" Margin="0,10,0,0"
+        <TextBlock Grid.Row="10" x:Name="StatusTextBlock" Margin="0,10,0,10"
                    TextWrapping="Wrap" Foreground="Green" VerticalAlignment="Bottom"/>
 
         <!-- BOTON NUEVO CODIGO (solo visible en modo reimpresion) -->
-        <Button Grid.Row="10" x:Name="NewCodeButton"
+        <Button Grid.Row="11" x:Name="NewCodeButton"
                 Content="+ Crear Nuevo Código"
                 Height="30" Margin="0,6,0,0"
                 Visibility="Collapsed"
@@ -148,7 +221,7 @@
                 Click="NewCodeButton_Click"/>
 
         <!-- FOOTER / COPYRIGHT -->
-        <TextBlock Grid.Row="11" Text="Desarrollado por Miguel Rojas © 2026"
+        <TextBlock Grid.Row="12" Text="Desarrollado por Miguel Rojas © 2026"
                    Margin="0,10,0,0" FontSize="11" Foreground="Gray"
                    HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
     </Grid>

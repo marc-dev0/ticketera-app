@@ -25,24 +25,44 @@ namespace TicketeraApp
         private void Refresh()
         {
             var records = _svc.Load();
-            HistoryGrid.ItemsSource = records.OrderByDescending(r => r.RegisteredAt).ToList();
             int count = records.Count;
             string last = records.OrderByDescending(r => r.RegisteredAt).FirstOrDefault()?.Code ?? "—";
             SubtitleBlock.Text = $"{count} código(s) registrado(s). Último: {last}";
             StatusBlock.Text = "";
+            FilterHistory();
+        }
+
+        private void SearchTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            FilterHistory();
+        }
+
+        private void FilterHistory()
+        {
+            var records = _svc.Load();
+            string query = SearchTextBox?.Text?.ToLower() ?? "";
+
+            var filtered = string.IsNullOrWhiteSpace(query)
+                ? records
+                : records.Where(r => 
+                    (r.Code != null && r.Code.Contains(query)) || 
+                    (r.ProductName != null && r.ProductName.ToLower().Contains(query)));
+
+            HistoryGrid.ItemsSource = filtered.OrderByDescending(r => r.RegisteredAt).ToList();
         }
 
         // ── Seleccionar para reimprimir ───────────────────────────────────────
         private void SelectCurrentRow()
         {
-            if (HistoryGrid.SelectedItem is BarcodeRecord record)
+            var record = HistoryGrid.SelectedItem as BarcodeRecord ?? HistoryGrid.CurrentItem as BarcodeRecord;
+            if (record != null)
             {
                 SelectedForReprint = record;
                 Close();
             }
             else
             {
-                StatusBlock.Text = "Selecciona primero una fila de la lista.";
+                StatusBlock.Text = "Selecciona primero una celda/fila de la lista.";
                 StatusBlock.Foreground = System.Windows.Media.Brushes.DarkOrange;
             }
         }

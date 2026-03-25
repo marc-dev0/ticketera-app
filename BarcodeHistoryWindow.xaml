@@ -11,6 +11,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -23,12 +24,23 @@
                        FontSize="11" Foreground="Gray" Margin="0,3,0,0"/>
         </StackPanel>
 
+        <!-- Search Bar -->
+        <Grid Grid.Row="1" Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="🔍 Buscar:" VerticalAlignment="Center" Margin="0,0,5,0" Foreground="#1A5276" FontWeight="SemiBold"/>
+            <TextBox Grid.Column="1" x:Name="SearchTextBox" Padding="4" TextChanged="SearchTextBox_TextChanged" 
+                     ToolTip="Buscar por código EAN-13 o nombre de producto"/>
+        </Grid>
+
         <!-- Hint para reimprimir -->
-        <TextBlock Grid.Row="1" Margin="0,0,0,8" FontSize="11" Foreground="#1A5276"
+        <TextBlock Grid.Row="2" Margin="0,0,0,8" FontSize="11" Foreground="#1A5276"
                    Text="💡 Doble clic en una fila (o selecciónala y usa el botón Reimprimir) para cargarla en el formulario principal."/>
 
         <!-- DataGrid -->
-        <DataGrid Grid.Row="2"
+        <DataGrid Grid.Row="3"
                   x:Name="HistoryGrid"
                   AutoGenerateColumns="False"
                   IsReadOnly="True"
@@ -36,7 +48,8 @@
                   GridLinesVisibility="Horizontal"
                   HeadersVisibility="Column"
                   CanUserResizeRows="False"
-                  SelectionMode="Single"
+                  SelectionMode="Extended"
+                  SelectionUnit="CellOrRowHeader"
                   BorderBrush="#CCCCCC" BorderThickness="1"
                   MouseDoubleClick="HistoryGrid_MouseDoubleClick">
             <DataGrid.Columns>
@@ -64,7 +77,7 @@
         </DataGrid>
 
         <!-- Bottom bar -->
-        <Grid Grid.Row="3" Margin="0,12,0,0">
+        <Grid Grid.Row="4" Margin="0,12,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>

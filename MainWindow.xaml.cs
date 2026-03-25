@@ -97,6 +97,52 @@ namespace TicketeraApp
             }
         }
 
+        // ── Combined Row CheckBox ────────────────────────────────────────────
+        private void CombinedRowCheckBox_Changed(object sender, RoutedEventArgs e)
+        {
+            if (CombinedRowPanel != null)
+            {
+                bool isChecked = CombinedRowCheckBox.IsChecked == true;
+                CombinedRowPanel.Visibility = isChecked ? Visibility.Visible : Visibility.Collapsed;
+
+                if (!isChecked)
+                {
+                    Col2SkuTextBox.Text = string.Empty;
+                    Col2NameTextBox.Text = string.Empty;
+                    Col2PriceTextBox.Text = string.Empty;
+
+                    Col3SkuTextBox.Text = string.Empty;
+                    Col3NameTextBox.Text = string.Empty;
+                    Col3PriceTextBox.Text = string.Empty;
+                }
+            }
+        }
+
+        private void LoadProductDataFromHistory(string sku, System.Windows.Controls.TextBox nameBox, System.Windows.Controls.TextBox priceBox)
+        {
+            if (string.IsNullOrWhiteSpace(sku) || sku.Length < 12) return;
+            
+            var records = _registryService.Load();
+            var match = records.FirstOrDefault(r => r.Code == sku) 
+                     ?? records.FirstOrDefault(r => r.Code.StartsWith(sku));
+            
+            if (match != null)
+            {
+                nameBox.Text = match.ProductName ?? "";
+                priceBox.Text = match.Price ?? "";
+            }
+        }
+
+        private void Col2SkuTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            LoadProductDataFromHistory(Col2SkuTextBox.Text.Trim(), Col2NameTextBox, Col2PriceTextBox);
+        }
+
+        private void Col3SkuTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            LoadProductDataFromHistory(Col3SkuTextBox.Text.Trim(), Col3NameTextBox, Col3PriceTextBox);
+        }
+
         // ── Checkbox handlers ────────────────────────────────────────────────
         private void EnableProductNameCheckBox_Changed(object sender, RoutedEventArgs e)
         {
@@ -328,10 +374,50 @@ namespace TicketeraApp
             try
             {
                 StatusTextBlock.Text = "Generando comando...";
-                string command = _labelService.Generate3ColumnEan13Command(
-                    productName, sku, price,
-                    _nameSettings, _barcodeSettings, _priceSettings,
-                    spacingX, globalOffsetX, firstColOffset, quantity);
+                string command = "";
+                bool isCombined = CombinedRowCheckBox.IsChecked == true;
+
+                if (isCombined)
+                {
+                    // Validate secondary columns
+                    string c2Sku = Col2SkuTextBox.Text.Trim();
+                    string c3Sku = Col3SkuTextBox.Text.Trim();
+                    
+                    if (!string.IsNullOrEmpty(c2Sku) && !IsValidEAN13(c2Sku))
+                    {
+                        MessageBox.Show("El código de la columna 2 es inválido.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
+                    }
+                    if (!string.IsNullOrEmpty(c3Sku) && !IsValidEAN13(c3Sku))
+                    {
+                        MessageBox.Show("El código de la columna 3 es inválido.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
+                    }
+
+                    if (quantity > 1)
+                    {
+                        command += _labelService.Generate3ColumnEan13Command(
+                            productName, sku, price,
+                            _nameSettings, _barcodeSettings, _priceSettings,
+                            spacingX, globalOffsetX, firstColOffset, quantity - 1);
+                    }
+
+                    string[] names = new[] { productName, Col2NameTextBox.Text.Trim(), Col3NameTextBox.Text.Trim() };
+                    string[] skus = new[] { sku, c2Sku, c3Sku };
+                    string[] prices = new[] { price, Col2PriceTextBox.Text.Trim(), Col3PriceTextBox.Text.Trim() };
+
+                    command += _labelService.GenerateCombinedRowCommand(
+                        names, skus, prices,
+                        _nameSettings, _barcodeSettings, _priceSettings,
+                        spacingX, globalOffsetX, firstColOffset);
+                }
+                else
+                {
+                    command = _labelService.Generate3ColumnEan13Command(
+                        productName, sku, price,
+                        _nameSettings, _barcodeSettings, _priceSettings,
+                        spacingX, globalOffsetX, firstColOffset, quantity);
+                }
 
                 StatusTextBlock.Text = "Enviando a la impresora...";
                 bool ok = WindowsPrinterHelper.SendStringToPrinter(printerName, command);
