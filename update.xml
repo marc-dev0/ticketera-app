@@ -7,8 +7,8 @@
       Cada vez que saques una nueva versión, actualiza el <version> y el link <url> 
       al nuevo instalador que hayas subido a tu repo (gh-pages) o Releases.
     -->
-    <version>1.4.2.0</version>
-    <url>https://marc-dev0.github.io/ticketera-app/ProfitCode_Setup_v1.4.2.exe</url>
+    <version>1.4.3.0</version>
+    <url>https://marc-dev0.github.io/ticketera-app/ProfitCode_Setup_v1.4.3.exe</url>
     <changelog>https://marc-dev0.github.io/ticketera-app/changelog.html</changelog>
     <mandatory>false</mandatory>
 </item>
