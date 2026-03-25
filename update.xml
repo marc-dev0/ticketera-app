@@ -9,6 +9,6 @@
     -->
     <version>1.4.2.0</version>
     <url>https://marc-dev0.github.io/ticketera-app/ProfitCode_Setup_v1.4.2.exe</url>
-    <changelog>https://github.com/marc-dev0/ticketera-app/releases</changelog>
+    <changelog>https://marc-dev0.github.io/ticketera-app/changelog.html</changelog>
     <mandatory>false</mandatory>
 </item>
