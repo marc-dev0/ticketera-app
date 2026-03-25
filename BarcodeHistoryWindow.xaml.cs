@@ -51,6 +51,11 @@ namespace TicketeraApp
             HistoryGrid.ItemsSource = filtered.OrderByDescending(r => r.RegisteredAt).ToList();
         }
 
+        private void HistoryGrid_LoadingRow(object sender, System.Windows.Controls.DataGridRowEventArgs e)
+        {
+            e.Row.Header = (e.Row.GetIndex() + 1).ToString();
+        }
+
         // ── Seleccionar para reimprimir ───────────────────────────────────────
         private void SelectCurrentRow()
         {

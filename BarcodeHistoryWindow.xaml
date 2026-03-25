@@ -51,9 +51,18 @@
                   SelectionMode="Extended"
                   SelectionUnit="CellOrRowHeader"
                   BorderBrush="#CCCCCC" BorderThickness="1"
+                  LoadingRow="HistoryGrid_LoadingRow"
                   MouseDoubleClick="HistoryGrid_MouseDoubleClick">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Código EAN-13"   Binding="{Binding Code}"        Width="155"/>
+                <DataGridTextColumn Header="Nº" Binding="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow}, Path=Header}" Width="45">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                            <Setter Property="Foreground" Value="Gray"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Código EAN-13"   Binding="{Binding Code}"        Width="140"/>
                 <DataGridTextColumn Header="Nombre Producto" Binding="{Binding ProductName}" Width="*"/>
                 <DataGridTextColumn Header="Precio"          Binding="{Binding Price}"       Width="90"/>
                 <DataGridTextColumn Header="Fecha"
