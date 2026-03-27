@@ -15,9 +15,9 @@ namespace TicketeraApp.Services
 
         public static AppSettings CreateDefaults() => new AppSettings
         {
-            NameSettings    = new FieldSettings { Label = "Nombre del Producto", X = 50,  Y = 0,   Height = 0,   FontScale = 1 },
-            BarcodeSettings = new FieldSettings { Label = "Código EAN-13",       X = 50,  Y = 25,  Height = 105, FontScale = 1 },
-            PriceSettings   = new FieldSettings { Label = "Precio",              X = 80,  Y = 145, Height = 0,   FontScale = 1 },
+            NameSettings    = new FieldSettings { Label = "Nombre del Producto", X = 50,  Y = 0,   Height = 0,   FontType = "1", FontSize = 1 },
+            BarcodeSettings = new FieldSettings { Label = "Código EAN-13",       X = 50,  Y = 25,  Height = 105, FontType = "1", FontSize = 1 },
+            PriceSettings   = new FieldSettings { Label = "Precio",              X = 80,  Y = 145, Height = 0,   FontType = "1", FontSize = 1 },
             SpacingX           = 280,
             GlobalOffsetX      = 0,
             FirstColumnXOffset = 10,

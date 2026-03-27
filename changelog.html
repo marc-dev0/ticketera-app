@@ -1,44 +1,110 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="utf-8">
     <title>Historial de Cambios - ProfitCode</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 15px; color: #333; background-color: #FAFAFA; }
-        h1 { font-size: 20px; color: #007ACC; border-bottom: 2px solid #EAEAEA; padding-bottom: 8px;}
-        h2 { font-size: 16px; color: #2C3E50; margin-top: 20px; margin-bottom: 5px; }
-        ul { padding-left: 20px; margin-top: 5px; }
-        li { margin-bottom: 6px; font-size: 13px; line-height: 1.4; color: #444; }
-        .version { font-weight: 600; color: #007ACC; }
-        .badge { background-color: #27AE60; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-right: 5px; font-weight: bold;}
-        .badge-fix { background-color: #E67E22; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-right: 5px; font-weight: bold;}
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 15px;
+            color: #333;
+            background-color: #FAFAFA;
+        }
+
+        h1 {
+            font-size: 20px;
+            color: #007ACC;
+            border-bottom: 2px solid #EAEAEA;
+            padding-bottom: 8px;
+        }
+
+        h2 {
+            font-size: 16px;
+            color: #2C3E50;
+            margin-top: 20px;
+            margin-bottom: 5px;
+        }
+
+        ul {
+            padding-left: 20px;
+            margin-top: 5px;
+        }
+
+        li {
+            margin-bottom: 6px;
+            font-size: 13px;
+            line-height: 1.4;
+            color: #444;
+        }
+
+        .version {
+            font-weight: 600;
+            color: #007ACC;
+        }
+
+        .badge {
+            background-color: #27AE60;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-right: 5px;
+            font-weight: bold;
+        }
+
+        .badge-fix {
+            background-color: #E67E22;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-right: 5px;
+            font-weight: bold;
+        }
     </style>
 </head>
+
 <body>
     <h1>Novedades de ProfitCode</h1>
 
+    <h2><span class="version">Versión 1.4.4</span> - Personalización de Etiquetas</h2>
+    <ul>
+        <li><span class="badge">Nuevo</span> Ahora puedes elegir el <b>Tipo de Letra</b> de la impresora y su <b>Tamaño
+                (escala)</b> para los campos de Nombre del Producto y Precio.</li>
+    </ul>
+
     <h2><span class="version">Versión 1.4.3</span> - Historial Mejorado</h2>
     <ul>
-        <li><span class="badge">Nuevo</span> Se agregó una nueva columna numerada (Nº) en la tabla del Historial de Códigos para visualizar la cantidad exacta de registros.</li>
+        <li><span class="badge">Nuevo</span> Se agregó una nueva columna numerada (Nº) en la tabla del Historial de
+            Códigos para visualizar la cantidad exacta de registros.</li>
     </ul>
 
     <h2><span class="version">Versión 1.4.2</span> - Interfaz y Textos</h2>
     <ul>
-        <li><span class="badge">Mejora</span> Se simplificó el título de la ventana principal a "Impresión de Etiquetas".</li>
-        <li><span class="badge">Mejora</span> Se actualizó el ejemplo en el selector de impresora para mostrar "ej. HPRT HT300".</li>
+        <li><span class="badge">Mejora</span> Se simplificó el título de la ventana principal a "Impresión de
+            Etiquetas".</li>
+        <li><span class="badge">Mejora</span> Se actualizó el ejemplo en el selector de impresora para mostrar "ej. HPRT
+            HT300".</li>
     </ul>
 
     <h2><span class="version">Versión 1.4.1</span> - Despliegue Crítico</h2>
     <ul>
-        <li><span class="badge-fix">Corrección</span> <strong>Instalador Autocontenido:</strong> Ya no se requiere descargar e instalar .NET manualmente para que la aplicación funcione en nuevas computadoras. Todo viene incluido internamente en el ejecutable.</li>
+        <li><span class="badge-fix">Corrección</span> <strong>Instalador Autocontenido:</strong> Ya no se requiere
+            descargar e instalar .NET manualmente para que la aplicación funcione en nuevas computadoras. Todo viene
+            incluido internamente en el ejecutable.</li>
     </ul>
 
     <h2><span class="version">Versión 1.4.0</span> - Funciones y Ui</h2>
     <ul>
-        <li><span class="badge">Nuevo</span> Se agregó el ícono oficial a la barra de tareas, menú inicio y al instalador.</li>
+        <li><span class="badge">Nuevo</span> Se agregó el ícono oficial a la barra de tareas, menú inicio y al
+            instalador.</li>
         <li><span class="badge">Nuevo</span> Indicador de versión del sistema en la parte inferior de la ventana.</li>
-        <li><span class="badge">Nuevo</span> <strong>Historial de códigos:</strong> Ahora puedes ver, buscar y re-imprimir etiquetas de productos guardados anteriormente.</li>
-        <li><span class="badge">Nuevo</span> <strong>Fila Combinada:</strong> Posibilidad de cargar e imprimir 2 o 3 productos/códigos diferentes en la última fila del rollo multicelda.</li>
+        <li><span class="badge">Nuevo</span> <strong>Historial de códigos:</strong> Ahora puedes ver, buscar y
+            re-imprimir etiquetas de productos guardados anteriormente.</li>
+        <li><span class="badge">Nuevo</span> <strong>Fila Combinada:</strong> Posibilidad de cargar e imprimir 2 o 3
+            productos/códigos diferentes en la última fila del rollo multicelda.</li>
     </ul>
 </body>
+
 </html>

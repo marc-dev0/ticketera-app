@@ -20,7 +20,8 @@ namespace TicketeraApp
                 X = current.X,
                 Y = current.Y,
                 Height = current.Height,
-                FontScale = current.FontScale
+                FontType = current.FontType,
+                FontSize = current.FontSize
             };
 
             Title = $"Configurar: {current.Label}";
@@ -34,16 +35,27 @@ namespace TicketeraApp
 
             if (!isBarcode)
             {
-                foreach (System.Windows.Controls.ComboBoxItem item in FontScaleComboBox.Items)
+                foreach (System.Windows.Controls.ComboBoxItem item in FontTypeComboBox.Items)
                 {
-                    if (item.Tag?.ToString() == current.FontScale.ToString())
+                    if (item.Tag?.ToString() == current.FontType)
                     {
-                        FontScaleComboBox.SelectedItem = item;
+                        FontTypeComboBox.SelectedItem = item;
                         break;
                     }
                 }
-                if (FontScaleComboBox.SelectedItem == null)
-                    FontScaleComboBox.SelectedIndex = 0;
+                if (FontTypeComboBox.SelectedItem == null)
+                    FontTypeComboBox.SelectedIndex = 0;
+
+                foreach (System.Windows.Controls.ComboBoxItem item in FontSizeComboBox.Items)
+                {
+                    if (item.Tag?.ToString() == current.FontSize.ToString())
+                    {
+                        FontSizeComboBox.SelectedItem = item;
+                        break;
+                    }
+                }
+                if (FontSizeComboBox.SelectedItem == null)
+                    FontSizeComboBox.SelectedIndex = 0;
             }
 
             // Ajustar etiqueta del campo Height para barcode vs texto
@@ -56,18 +68,28 @@ namespace TicketeraApp
             if (!int.TryParse(YTextBox.Text, out int y)) y = 0;
             if (!int.TryParse(HeightTextBox.Text, out int height)) height = 0;
 
-            int fontScale = 1;
-            if (!_isBarcode
-                && FontScaleComboBox.SelectedItem is System.Windows.Controls.ComboBoxItem selected
-                && int.TryParse(selected.Tag?.ToString(), out int parsed))
+            string fontType = "1";
+            int fontSize = 1;
+
+            if (!_isBarcode)
             {
-                fontScale = parsed;
+                if (FontTypeComboBox.SelectedItem is System.Windows.Controls.ComboBoxItem selectedType)
+                {
+                    fontType = selectedType.Tag?.ToString() ?? "1";
+                }
+
+                if (FontSizeComboBox.SelectedItem is System.Windows.Controls.ComboBoxItem selectedSize
+                    && int.TryParse(selectedSize.Tag?.ToString(), out int parsedSize))
+                {
+                    fontSize = parsedSize;
+                }
             }
 
             Result.X = x;
             Result.Y = y;
             Result.Height = height;
-            Result.FontScale = fontScale;
+            Result.FontType = fontType;
+            Result.FontSize = fontSize;
 
             DialogResult = true;
             Close();

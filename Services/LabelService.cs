@@ -50,7 +50,7 @@ namespace TicketeraApp.Services
                 if (hasName)
                 {
                     sb.AppendLine($"TEXT {baseX + nameSettings.X}, {nameSettings.Y}, " +
-                                  $"\"{nameSettings.FontScale}\", 0, 1, 1, \"{productName}\"");
+                                  $"\"{nameSettings.FontType}\", 0, {nameSettings.FontSize}, {nameSettings.FontSize}, \"{productName}\"");
                 }
 
                 sb.AppendLine($"BARCODE {baseX + barcodeSettings.X}, {eanStart}, " +
@@ -59,7 +59,7 @@ namespace TicketeraApp.Services
                 if (hasPrice)
                 {
                     sb.AppendLine($"TEXT {baseX + priceSettings.X}, {priceSettings.Y}, " +
-                                  $"\"{priceSettings.FontScale}\", 0, 1, 1, \"{price}\"");
+                                  $"\"{priceSettings.FontType}\", 0, {priceSettings.FontSize}, {priceSettings.FontSize}, \"{price}\"");
                 }
             }
 
@@ -117,7 +117,7 @@ namespace TicketeraApp.Services
                 if (hasName)
                 {
                     sb.AppendLine($"TEXT {baseX + nameSettings.X}, {nameSettings.Y}, " +
-                                  $"\"{nameSettings.FontScale}\", 0, 1, 1, \"{productName}\"");
+                                  $"\"{nameSettings.FontType}\", 0, {nameSettings.FontSize}, {nameSettings.FontSize}, \"{productName}\"");
                 }
 
                 sb.AppendLine($"BARCODE {baseX + barcodeSettings.X}, {eanStart}, " +
@@ -126,7 +126,7 @@ namespace TicketeraApp.Services
                 if (hasPrice)
                 {
                     sb.AppendLine($"TEXT {baseX + priceSettings.X}, {priceSettings.Y}, " +
-                                  $"\"{priceSettings.FontScale}\", 0, 1, 1, \"{price}\"");
+                                  $"\"{priceSettings.FontType}\", 0, {priceSettings.FontSize}, {priceSettings.FontSize}, \"{price}\"");
                 }
             }
 

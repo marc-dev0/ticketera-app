@@ -16,7 +16,10 @@ namespace TicketeraApp.Models
         /// <summary>Altura del elemento en dots. En 0, se calcula automáticamente.</summary>
         public int Height { get; set; } = 0;
 
-        /// <summary>Escala de la fuente TSPL: 1 = pequeño, 2 = mediano.</summary>
-        public int FontScale { get; set; } = 1;
+        /// <summary>Tipo de fuente TSPL: "1", "2", "3", "4", "5", "8", "ROMAN.TTF", etc.</summary>
+        public string FontType { get; set; } = "1";
+
+        /// <summary>Multiplicador de tamaño (escala) de la fuente (1 a 10).</summary>
+        public int FontSize { get; set; } = 1;
     }
 }
