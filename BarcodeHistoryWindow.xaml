@@ -32,6 +32,7 @@
             </Grid.ColumnDefinitions>
             <TextBlock Text="🔍 Buscar:" VerticalAlignment="Center" Margin="0,0,5,0" Foreground="#1A5276" FontWeight="SemiBold"/>
             <TextBox Grid.Column="1" x:Name="SearchTextBox" Padding="4" TextChanged="SearchTextBox_TextChanged" 
+                     KeyDown="SearchTextBox_KeyDown"
                      ToolTip="Buscar por código EAN-13 o nombre de producto"/>
         </Grid>
 
@@ -48,11 +49,12 @@
                   GridLinesVisibility="Horizontal"
                   HeadersVisibility="Column"
                   CanUserResizeRows="False"
-                  SelectionMode="Extended"
-                  SelectionUnit="CellOrRowHeader"
+                  SelectionMode="Single"
+                  SelectionUnit="FullRow"
                   BorderBrush="#CCCCCC" BorderThickness="1"
                   LoadingRow="HistoryGrid_LoadingRow"
-                  MouseDoubleClick="HistoryGrid_MouseDoubleClick">
+                  MouseDoubleClick="HistoryGrid_MouseDoubleClick"
+                  PreviewKeyDown="HistoryGrid_PreviewKeyDown">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Nº" Binding="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow}, Path=Header}" Width="45">
                     <DataGridTextColumn.ElementStyle>

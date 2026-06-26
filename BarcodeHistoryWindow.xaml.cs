@@ -20,6 +20,7 @@ namespace TicketeraApp
             InitializeComponent();
             _svc = svc;
             Refresh();
+            Loaded += (s, e) => { SearchTextBox.Focus(); };
         }
 
         private void Refresh()
@@ -30,6 +31,46 @@ namespace TicketeraApp
             SubtitleBlock.Text = $"{count} código(s) registrado(s). Último: {last}";
             StatusBlock.Text = "";
             FilterHistory();
+        }
+
+        private void SearchTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                if (HistoryGrid.Items.Count > 0)
+                {
+                    if (HistoryGrid.SelectedItem == null)
+                    {
+                        HistoryGrid.SelectedIndex = 0;
+                    }
+                    SelectCurrentRow();
+                    e.Handled = true;
+                }
+            }
+            else if (e.Key == Key.Down)
+            {
+                if (HistoryGrid.Items.Count > 0)
+                {
+                    HistoryGrid.Focus();
+                    if (HistoryGrid.SelectedItem == null)
+                    {
+                        HistoryGrid.SelectedIndex = 0;
+                    }
+                    
+                    var row = HistoryGrid.ItemContainerGenerator.ContainerFromIndex(HistoryGrid.SelectedIndex) as System.Windows.Controls.DataGridRow;
+                    row?.Focus();
+                    e.Handled = true;
+                }
+            }
+        }
+
+        private void HistoryGrid_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                SelectCurrentRow();
+                e.Handled = true;
+            }
         }
 
         private void SearchTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)

@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Printing;
 using System.Windows;
+using System.Windows.Input;
 using TicketeraApp.Models;
 using TicketeraApp.Services;
 using TicketeraApp.Infrastructure;
@@ -41,6 +42,16 @@ namespace TicketeraApp
             if (version != null)
             {
                 VersionTextBlock.Text = $"v{version.Major}.{version.Minor}.{version.Build}";
+            }
+        }
+
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            // Atajo F4 o Ctrl+H para abrir el historial
+            if (e.Key == Key.F4 || (e.Key == Key.H && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control))
+            {
+                HistoryButton_Click(this, new RoutedEventArgs());
+                e.Handled = true;
             }
         }
 
