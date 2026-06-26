@@ -4,7 +4,7 @@
 ; ─────────────────────────────────────────────────────────────────────────────
 
 #define AppName      "ProfitCode"
-#define AppVersion   "1.4.5"
+#define AppVersion   "1.4.6"
 #define AppPublisher "Miguel Rojas – Profitzen"
 #define AppExeName   "TicketeraApp.exe"
 #define SourceDir    "bin\installer_source"
@@ -24,6 +24,7 @@ Compression=lzma2/ultra64
 SolidCompression=yes
 WizardStyle=modern
 ArchitecturesInstallIn64BitMode=x64compatible
+SetupIconFile=icon.ico
 
 [Languages]
 Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"
@@ -33,11 +34,12 @@ Name: "desktopicon"; Description: "Crear icono en el Escritorio"; GroupDescripti
 
 [Files]
 Source: "{#SourceDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "icon.ico"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
-Name: "{group}\{#AppName}"; Filename: "{app}\{#AppExeName}"
+Name: "{group}\{#AppName}"; Filename: "{app}\{#AppExeName}"; IconFilename: "{app}\icon.ico"
 Name: "{group}\Desinstalar {#AppName}"; Filename: "{uninstallexe}"
-Name: "{autodesktop}\{#AppName}"; Filename: "{app}\{#AppExeName}"; Tasks: desktopicon
+Name: "{autodesktop}\{#AppName}"; Filename: "{app}\{#AppExeName}"; Tasks: desktopicon; IconFilename: "{app}\icon.ico"
 
 [Run]
 Filename: "{app}\{#AppExeName}"; Description: "Iniciar {#AppName} ahora"; Flags: nowait postinstall skipifsilent
