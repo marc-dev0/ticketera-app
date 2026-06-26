@@ -53,6 +53,12 @@ namespace TicketeraApp
                 HistoryButton_Click(this, new RoutedEventArgs());
                 e.Handled = true;
             }
+            // Escape para salir del modo reimpresión y volver al flujo normal
+            else if (e.Key == Key.Escape && _isReprinting)
+            {
+                NewCodeButton_Click(this, new RoutedEventArgs());
+                e.Handled = true;
+            }
         }
 
         private void LoadSettings()
@@ -317,7 +323,7 @@ namespace TicketeraApp
 
                 _isReprinting = true;
                 NewCodeButton.Visibility = Visibility.Visible;
-                StatusTextBlock.Text = $"Código {record.Code} cargado. Ajusta la cantidad y presiona Imprimir.";
+                StatusTextBlock.Text = $"Código {record.Code} cargado (Reimpresión). Presiona [Esc] para cancelar.";
                 StatusTextBlock.Foreground = System.Windows.Media.Brushes.SteelBlue;
                 // Diferir el foco hasta que la ventana del historial haya cerrado por completo
                 Dispatcher.BeginInvoke(new Action(() =>
@@ -328,6 +334,7 @@ namespace TicketeraApp
             }
             else
             {
+                _isReprinting = false;
                 NewCodeButton.Visibility = Visibility.Collapsed;
                 RefreshCodeEntryState();
             }
@@ -449,7 +456,7 @@ namespace TicketeraApp
                     {
                         // Reimpresión completada: mantener el código cargado para reimprimir de nuevo si se desea.
                         // El usuario puede presionar Imprimir otra vez, o abrir el Historial y cerrar para volver al modo normal.
-                        StatusTextBlock.Text = "✔ Reimpresión enviada. Imprime de nuevo o abre el Historial para crear un código nuevo.";
+                        StatusTextBlock.Text = "✔ Reimpresión enviada. Imprime de nuevo, o presiona [Esc] para volver al flujo normal.";
                         StatusTextBlock.Foreground = System.Windows.Media.Brushes.SeaGreen;
                         PrintQuantityTextBox.Focus();
                         PrintQuantityTextBox.SelectAll();

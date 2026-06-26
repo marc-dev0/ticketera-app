@@ -35,19 +35,7 @@ namespace TicketeraApp
 
         private void SearchTextBox_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Enter)
-            {
-                if (HistoryGrid.Items.Count > 0)
-                {
-                    if (HistoryGrid.SelectedItem == null)
-                    {
-                        HistoryGrid.SelectedIndex = 0;
-                    }
-                    SelectCurrentRow();
-                    e.Handled = true;
-                }
-            }
-            else if (e.Key == Key.Down)
+            if (e.Key == Key.Enter || e.Key == Key.Down)
             {
                 if (HistoryGrid.Items.Count > 0)
                 {

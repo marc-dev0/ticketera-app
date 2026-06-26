@@ -215,16 +215,19 @@
 
         <!-- BOTON NUEVO CODIGO (solo visible en modo reimpresion) -->
         <Button Grid.Row="11" x:Name="NewCodeButton"
-                Content="+ Crear Nuevo Código"
+                Content="+ Crear Nuevo Código (Esc)"
                 Height="30" Margin="0,6,0,0"
                 Visibility="Collapsed"
                 Background="#27AE60" Foreground="White" FontWeight="SemiBold" FontSize="12"
                 Click="NewCodeButton_Click"/>
 
         <!-- FOOTER / COPYRIGHT -->
-        <StackPanel Grid.Row="12" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,10,0,0">
-            <TextBlock x:Name="VersionTextBlock" Text="v0.0.0" Margin="0,0,10,0" FontSize="11" Foreground="Gray"/>
-            <TextBlock Text="Desarrollado por Miguel Rojas © 2026" FontSize="11" Foreground="Gray"/>
+        <StackPanel Grid.Row="12" Margin="0,10,0,0" HorizontalAlignment="Center" VerticalAlignment="Bottom">
+            <TextBlock Text="Atajos: [F4] Historial | [Esc] Cancelar Reimpresión" FontSize="10" Foreground="Gray" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <TextBlock x:Name="VersionTextBlock" Text="v0.0.0" Margin="0,0,10,0" FontSize="11" Foreground="Gray"/>
+                <TextBlock Text="Desarrollado por Miguel Rojas © 2026" FontSize="11" Foreground="Gray"/>
+            </StackPanel>
         </StackPanel>
     </Grid>
 </Window>
