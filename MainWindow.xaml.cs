@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Printing;
 using System.Windows;
 using System.Windows.Input;
@@ -43,6 +44,8 @@ namespace TicketeraApp
             {
                 VersionTextBlock.Text = $"v{version.Major}.{version.Minor}.{version.Build}";
             }
+            LogService.CleanOldLogs();
+            LogService.Info($"=== Ticketera {VersionTextBlock.Text} iniciada (SO: {Environment.OSVersion.VersionString}) ===");
         }
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
@@ -51,6 +54,12 @@ namespace TicketeraApp
             if (e.Key == Key.F4 || (e.Key == Key.H && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control))
             {
                 HistoryButton_Click(this, new RoutedEventArgs());
+                e.Handled = true;
+            }
+            // F8 para anular la impresión en curso
+            else if (e.Key == Key.F8)
+            {
+                CancelPrintButton_Click(this, new RoutedEventArgs());
                 e.Handled = true;
             }
             // Escape para salir del modo reimpresión y volver al flujo normal
@@ -445,7 +454,9 @@ namespace TicketeraApp
                 }
 
                 StatusTextBlock.Text = "Enviando a la impresora...";
+                LogService.Info($"Imprimir: impresora='{printerName}', sku={sku}, cantidad={quantity}, combinada={isCombined}, bytes={command.Length}, cola: {WindowsPrinterHelper.DescribeQueue(printerName)}");
                 bool ok = WindowsPrinterHelper.SendStringToPrinter(printerName, command);
+                LogService.Info($"Imprimir: envío {(ok ? "OK" : "FALLÓ")}");
 
                 if (ok)
                 {
@@ -510,10 +521,102 @@ namespace TicketeraApp
             }
             catch (Exception ex)
             {
+                LogService.Error("Imprimir: excepción", ex);
                 StatusTextBlock.Text = $"Error: {ex.Message}";
                 StatusTextBlock.Foreground = System.Windows.Media.Brushes.Red;
                 MessageBox.Show(ex.Message, "Error de Impresión", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        // ── Anular impresión ─────────────────────────────────────────────────
+        // Las N copias de "PRINT N,1" viven dentro de la impresora (Windows ya terminó el
+        // trabajo), así que hay que mandarle comandos inmediatos TSPL, no solo vaciar la cola.
+        private bool _isCancelling = false;
+
+        private async void CancelPrintButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_isCancelling) return;
+
+            if (PrinterComboBox.SelectedItem == null)
+            {
+                MessageBox.Show("Selecciona la impresora que quieres detener.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            string printerName = PrinterComboBox.SelectedItem.ToString() ?? "";
+            var confirm = MessageBox.Show(
+                $"¿Anular la impresión en \"{printerName}\"?\n\nSe detendrán las etiquetas pendientes y la impresora se reiniciará (tarda unos segundos).",
+                "Anular impresión", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            if (confirm != MessageBoxResult.Yes) return;
+
+            _isCancelling = true;
+            CancelPrintButton.IsEnabled = false;
+            StatusTextBlock.Foreground = System.Windows.Media.Brushes.DarkOrange;
+            StatusTextBlock.Text = "Anulando impresión...";
+
+            // Todo en un hilo de fondo: la ventana sigue respondiendo y no hace falta cerrarla.
+            var (success, summary) = await Task.Run(() => CancelPrinting(printerName));
+
+            StatusTextBlock.Text = summary;
+            StatusTextBlock.Foreground = success ? System.Windows.Media.Brushes.SeaGreen : System.Windows.Media.Brushes.Red;
+            CancelPrintButton.IsEnabled = true;
+            _isCancelling = false;
+        }
+
+        private static (bool success, string summary) CancelPrinting(string printerName)
+        {
+            LogService.Info($"ANULAR: inicio. Impresora='{printerName}'. Cola: {WindowsPrinterHelper.DescribeQueue(printerName)}");
+            bool purged = false, resetSent = false, restartSent = false;
+
+            // 1) Cola de Windows: elimina trabajos que aún no llegaron a la impresora.
+            try
+            {
+                int pending = WindowsPrinterHelper.PurgeSpooler(printerName);
+                purged = true;
+                LogService.Info($"ANULAR: cola de Windows vaciada ({pending} trabajo(s) pendiente(s)).");
+            }
+            catch (Exception ex)
+            {
+                LogService.Error("ANULAR: no se pudo vaciar la cola de Windows", ex);
+            }
+
+            // 2) Reset inmediato <ESC>!R: vacía el buffer de la impresora (las copias pendientes).
+            try
+            {
+                WindowsPrinterHelper.SendStringToPrinter(printerName, WindowsPrinterHelper.CmdReset);
+                resetSent = true;
+                LogService.Info($"ANULAR: enviado {LogService.Printable(WindowsPrinterHelper.CmdReset)} (reset).");
+            }
+            catch (Exception ex)
+            {
+                LogService.Error("ANULAR: falló el envío de <ESC>!R", ex);
+            }
+
+            // 3) Respaldo <ESC>!C (reinicio) por si el firmware no acepta !R. Pausa para que
+            //    la impresora procese el primer comando antes del segundo.
+            System.Threading.Thread.Sleep(2500);
+            try
+            {
+                WindowsPrinterHelper.SendStringToPrinter(printerName, WindowsPrinterHelper.CmdRestart);
+                restartSent = true;
+                LogService.Info($"ANULAR: enviado {LogService.Printable(WindowsPrinterHelper.CmdRestart)} (reinicio de respaldo).");
+            }
+            catch (Exception ex)
+            {
+                LogService.Error("ANULAR: falló el envío de <ESC>!C", ex);
+            }
+
+            // 4) Segunda limpieza de la cola por si algo quedó atascado.
+            try { WindowsPrinterHelper.PurgeSpooler(printerName); } catch { }
+
+            bool sent = resetSent || restartSent;
+            LogService.Info($"ANULAR: fin. cola_vaciada={purged}, reset_enviado={resetSent}, reinicio_enviado={restartSent}. Cola: {WindowsPrinterHelper.DescribeQueue(printerName)}");
+
+            if (sent)
+                return (true, "✔ Comando de anulación enviado. Espera unos segundos a que la impresora se reinicie. Si sigue imprimiendo, apágala y envía el log (📂 Logs).");
+            return (false, "✖ No se pudo comunicar con la impresora. Revisa que esté encendida y conectada, y envía el log (📂 Logs).");
+        }
+
+        private void OpenLogs_Click(object sender, RoutedEventArgs e) => LogService.OpenLogFolder();
     }
 }
