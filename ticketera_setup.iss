@@ -4,7 +4,7 @@
 ; ─────────────────────────────────────────────────────────────────────────────
 
 #define AppName      "ProfitCode"
-#define AppVersion   "1.4.7"
+#define AppVersion   "1.4.8"
 #define AppPublisher "Miguel Rojas – Profitzen"
 #define AppExeName   "TicketeraApp.exe"
 #define SourceDir    "bin\installer_source"

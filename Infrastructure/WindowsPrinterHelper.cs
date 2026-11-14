@@ -94,7 +94,21 @@ namespace TicketeraApp.Infrastructure
             using var queue = new LocalPrintServer().GetPrintQueue(printerName);
             queue.Refresh();
             int pending = queue.NumberOfJobs;
-            queue.Purge();
+            try
+            {
+                queue.Purge();
+            }
+            catch (PrintQueueException ex)
+            {
+                LogService.Warn($"Purge denegado ({ex.Message.Trim()}). Cancelando trabajos uno por uno.");
+                int cancelled = 0;
+                foreach (PrintSystemJobInfo job in queue.GetPrintJobInfoCollection())
+                {
+                    try { job.Cancel(); cancelled++; }
+                    catch (Exception jex) { LogService.Warn($"No se pudo cancelar el trabajo {job.JobIdentifier} '{job.Name}': {jex.Message}"); }
+                }
+                LogService.Info($"Trabajos cancelados individualmente: {cancelled} de {pending}.");
+            }
             return pending;
         }
 
