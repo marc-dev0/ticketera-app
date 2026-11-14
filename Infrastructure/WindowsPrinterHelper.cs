@@ -88,10 +88,79 @@ namespace TicketeraApp.Infrastructure
             }
         }
 
+        /// <summary>
+        /// Abre la cola con permiso de administración (necesario para Purge/Resume). Si Windows lo
+        /// niega, cae al acceso básico, que alcanza para leer estado y cancelar los propios trabajos.
+        /// </summary>
+        private static PrintQueue OpenQueue(string printerName, bool administrate)
+        {
+            var server = new LocalPrintServer();
+            if (administrate)
+            {
+                try { return new PrintQueue(server, printerName, PrintSystemDesiredAccess.AdministratePrinter); }
+                catch (Exception ex) { LogService.Warn($"Sin permiso de administrar '{printerName}': {ex.Message.Trim()}"); }
+            }
+            return server.GetPrintQueue(printerName);
+        }
+
+        /// <summary>
+        /// Una cola pausada u offline en Windows retiene los trabajos y la impresora nunca los recibe.
+        /// Devuelve null si está lista, o el motivo si está bloqueada.
+        /// </summary>
+        public static string? GetBlockReason(string printerName)
+        {
+            try
+            {
+                using var queue = OpenQueue(printerName, false);
+                queue.Refresh();
+                if (queue.IsOffline) return "offline";
+                if (queue.IsPaused) return "paused";
+            }
+            catch (Exception ex)
+            {
+                LogService.Warn($"No se pudo leer el estado de la cola: {ex.Message.Trim()}");
+            }
+            return null;
+        }
+
+        /// <summary>Intenta reanudar una cola pausada. Devuelve true si quedó funcionando.</summary>
+        public static bool TryResumeQueue(string printerName)
+        {
+            try
+            {
+                using var queue = OpenQueue(printerName, true);
+                queue.Refresh();
+                if (!queue.IsPaused) return true;
+                queue.Resume();
+                queue.Refresh();
+                LogService.Info($"Cola '{printerName}' reanudada: IsPaused={queue.IsPaused}");
+                return !queue.IsPaused;
+            }
+            catch (Exception ex)
+            {
+                LogService.Warn($"No se pudo reanudar la cola '{printerName}': {ex.Message.Trim()}");
+                return false;
+            }
+        }
+
+        /// <summary>Abre la ventana de la cola de impresión de Windows para que el usuario la revise.</summary>
+        public static void OpenQueueWindow(string printerName)
+        {
+            try
+            {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(
+                    "rundll32.exe", $"printui.dll,PrintUIEntry /o /n\"{printerName}\"") { UseShellExecute = true });
+            }
+            catch (Exception ex)
+            {
+                LogService.Warn($"No se pudo abrir la cola de impresión: {ex.Message}");
+            }
+        }
+
         /// <summary>Borra todos los trabajos pendientes de la cola de Windows. Devuelve cuántos había.</summary>
         public static int PurgeSpooler(string printerName)
         {
-            using var queue = new LocalPrintServer().GetPrintQueue(printerName);
+            using var queue = OpenQueue(printerName, true);
             queue.Refresh();
             int pending = queue.NumberOfJobs;
             try

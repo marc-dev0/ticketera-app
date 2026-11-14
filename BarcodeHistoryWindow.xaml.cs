@@ -85,7 +85,7 @@ namespace TicketeraApp
             e.Row.Header = (e.Row.GetIndex() + 1).ToString();
         }
 
-        // ── Seleccionar para reimprimir ───────────────────────────────────────
+        // Seleccionar para reimprimir
         private void SelectCurrentRow()
         {
             var record = HistoryGrid.SelectedItem as BarcodeRecord ?? HistoryGrid.CurrentItem as BarcodeRecord;
@@ -111,7 +111,7 @@ namespace TicketeraApp
             SelectCurrentRow();
         }
 
-        // ── Delete single row ────────────────────────────────────────────────
+        // Delete single row
         private void DeleteRowButton_Click(object sender, RoutedEventArgs e)
         {
             if (sender is System.Windows.Controls.Button btn && btn.Tag is string code)
@@ -138,7 +138,7 @@ namespace TicketeraApp
             }
         }
 
-        // ── Export ───────────────────────────────────────────────────────────
+        // Export
         private void ExportButton_Click(object sender, RoutedEventArgs e)
         {
             var dlg = new SaveFileDialog
@@ -156,7 +156,7 @@ namespace TicketeraApp
             }
         }
 
-        // ── Clear all ────────────────────────────────────────────────────────
+        // Clear all
         private void ClearButton_Click(object sender, RoutedEventArgs e)
         {
             var result = MessageBox.Show(
@@ -174,7 +174,7 @@ namespace TicketeraApp
             }
         }
 
-        // ── Close ────────────────────────────────────────────────────────────
+        // Close
         private void CloseButton_Click(object sender, RoutedEventArgs e) => Close();
 
         private void Window_KeyDown(object sender, KeyEventArgs e)

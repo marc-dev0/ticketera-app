@@ -130,7 +130,7 @@ namespace TicketeraApp
             }
         }
 
-        // ── Combined Row CheckBox ────────────────────────────────────────────
+        // Combined Row CheckBox
         private void CombinedRowCheckBox_Changed(object sender, RoutedEventArgs e)
         {
             if (CombinedRowPanel != null)
@@ -176,7 +176,7 @@ namespace TicketeraApp
             LoadProductDataFromHistory(Col3SkuTextBox.Text.Trim(), Col3NameTextBox, Col3PriceTextBox);
         }
 
-        // ── Checkbox handlers ────────────────────────────────────────────────
+        // Checkbox handlers
         private void EnableProductNameCheckBox_Changed(object sender, RoutedEventArgs e)
         {
             if (ProductNameTextBox != null)
@@ -195,7 +195,7 @@ namespace TicketeraApp
             }
         }
 
-        // ── Config button handlers ───────────────────────────────────────────
+        // Config button handlers
         private void ConfigNameButton_Click(object sender, RoutedEventArgs e)
         {
             if (OpenFieldDialog(ref _nameSettings, isBarcode: false))
@@ -226,7 +226,7 @@ namespace TicketeraApp
             return false;
         }
 
-        // ── EAN-13 live check digit ───────────────────────────────────────────
+        // EAN-13 live check digit
         private void SkuTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
             // Guarda: el evento se dispara durante InitializeComponent() antes de que los controles existan
@@ -271,7 +271,7 @@ namespace TicketeraApp
             return (10 - (sum % 10)) % 10;
         }
 
-        // ── Validation ───────────────────────────────────────────────────────
+        // Validation
         private bool IsValidEAN13(string sku)
         {
             if (string.IsNullOrWhiteSpace(sku)) return false;
@@ -279,7 +279,7 @@ namespace TicketeraApp
             return sku.All(char.IsDigit);
         }
 
-        // ── Registry / History ───────────────────────────────────────────────
+        // Registry / History
         private void RefreshCodeEntryState()
         {
             var existing = _registryService.Load();
@@ -362,7 +362,7 @@ namespace TicketeraApp
             ProductNameTextBox.Focus();
         }
 
-        // ── Print ────────────────────────────────────────────────────────────
+        // Print
         private void PrintButton_Click(object sender, RoutedEventArgs e)
         {
             EanValidationWarning.Visibility = Visibility.Collapsed;
@@ -453,6 +453,30 @@ namespace TicketeraApp
                         spacingX, globalOffsetX, firstColOffset, quantity);
                 }
 
+                // Una cola pausada/offline en Windows retiene los trabajos: "envío OK" pero no sale nada.
+                string? blocked = WindowsPrinterHelper.GetBlockReason(printerName);
+                if (blocked == "paused")
+                {
+                    LogService.Warn($"Imprimir: la cola '{printerName}' está en pausa. Intentando reanudar.");
+                    if (WindowsPrinterHelper.TryResumeQueue(printerName)) blocked = null;
+                }
+                if (blocked != null)
+                {
+                    string why = blocked == "paused"
+                        ? "está PAUSADA en Windows (las etiquetas se quedan retenidas y no salen)"
+                        : "figura SIN CONEXIÓN en Windows (revisa que esté encendida y el cable USB)";
+                    LogService.Warn($"Imprimir: bloqueada, cola '{printerName}' {blocked}. No se envió nada.");
+                    StatusTextBlock.Text = $"✖ La impresora {why}.";
+                    StatusTextBlock.Foreground = System.Windows.Media.Brushes.Red;
+                    var open = MessageBox.Show(
+                        $"La impresora \"{printerName}\" {why}.\n\n" +
+                        "Para arreglarlo: en la ventana de la cola, menú Impresora → desmarca \"Pausar impresión\" y \"Usar impresora sin conexión\".\n\n" +
+                        "¿Abrir la cola de impresión ahora?",
+                        "Impresora bloqueada", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                    if (open == MessageBoxResult.Yes) WindowsPrinterHelper.OpenQueueWindow(printerName);
+                    return;
+                }
+
                 StatusTextBlock.Text = "Enviando a la impresora...";
                 LogService.Info($"Imprimir: impresora='{printerName}', sku={sku}, cantidad={quantity}, combinada={isCombined}, bytes={command.Length}, cola: {WindowsPrinterHelper.DescribeQueue(printerName)}");
                 bool ok = WindowsPrinterHelper.SendStringToPrinter(printerName, command);
@@ -528,7 +552,7 @@ namespace TicketeraApp
             }
         }
 
-        // ── Anular impresión ─────────────────────────────────────────────────
+        // Anular impresión
         // Las N copias de "PRINT N,1" viven dentro de la impresora (Windows ya terminó el
         // trabajo), así que hay que mandarle comandos inmediatos TSPL, no solo vaciar la cola.
         private bool _isCancelling = false;
@@ -612,6 +636,12 @@ namespace TicketeraApp
             bool sent = resetSent || restartSent;
             LogService.Info($"ANULAR: fin. cola_vaciada={purged}, reset_enviado={resetSent}, reinicio_enviado={restartSent}. Cola: {WindowsPrinterHelper.DescribeQueue(printerName)}");
 
+            string? blockReason = WindowsPrinterHelper.GetBlockReason(printerName);
+            if (blockReason != null)
+                LogService.Warn($"ANULAR: la cola quedó '{blockReason}' en Windows; las impresiones nuevas no saldrán hasta reanudarla.");
+
+            if (sent && blockReason != null)
+                return (true, "⚠ Comando enviado, pero la impresora está " + (blockReason == "paused" ? "PAUSADA" : "SIN CONEXIÓN") + " en Windows: nada saldrá hasta reanudarla (se intentará al imprimir). Envía el log (📂 Logs) si persiste.");
             if (sent)
                 return (true, "✔ Comando de anulación enviado. Espera unos segundos a que la impresora se reinicie. Si sigue imprimiendo, apágala y envía el log (📂 Logs).");
             return (false, "✖ No se pudo comunicar con la impresora. Revisa que esté encendida y conectada, y envía el log (📂 Logs).");

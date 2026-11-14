@@ -68,6 +68,12 @@
 <body>
     <h1>Novedades de ProfitCode</h1>
 
+    <h2><span class="version">Versión 1.4.9</span> - Detección de Impresora Pausada</h2>
+    <ul>
+        <li><span class="badge-fix">Corrección</span> Si la impresora está <b>pausada o sin conexión en Windows</b>, la aplicación lo detecta antes de imprimir, intenta reanudarla sola y, si no puede, avisa con instrucciones en lugar de decir "enviado" sin que salga nada.</li>
+        <li><span class="badge-fix">Corrección</span> <b>Anular impresión</b> ahora usa permiso de administración de la cola para vaciarla completa, y avisa si la impresora quedó pausada.</li>
+    </ul>
+
     <h2><span class="version">Versión 1.4.8</span> - Mejora al Anular Impresión</h2>
     <ul>
         <li><span class="badge-fix">Corrección</span> <b>Anular impresión</b> ahora también funciona en equipos donde Windows no permite vaciar toda la cola: cancela los trabajos pendientes uno por uno.</li>

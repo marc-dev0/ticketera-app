@@ -1,10 +1,8 @@
-; ─────────────────────────────────────────────────────────────────────────────
-; Inno Setup Script – ProfitCode / Ticketera EAN-13
-; Desarrollado por Miguel Rojas © 2026
-; ─────────────────────────────────────────────────────────────────────────────
+; Inno Setup Script - ProfitCode / Ticketera EAN-13
+; Desarrollado por Miguel Rojas, 2026
 
 #define AppName      "ProfitCode"
-#define AppVersion   "1.4.8"
+#define AppVersion   "1.4.9"
 #define AppPublisher "Miguel Rojas – Profitzen"
 #define AppExeName   "TicketeraApp.exe"
 #define SourceDir    "bin\installer_source"
